@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Công cụ SEO</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background: #f5f6f7;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .input-section {
+            margin-bottom: 20px;
+        }
+
+        .input-section label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .input-section input[type="text"],
+        .input-section textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .input-section textarea {
+            min-height: 200px;
+            resize: vertical;
+        }
+
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        .results {
+            margin-top: 20px;
+        }
+
+        .seo-score {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .score-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            margin-right: 20px;
+        }
+
+        .analysis-item {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+        }
+
+        .status-icon {
+            margin-right: 10px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+
+        .good {
+            background: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .improve {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+        }
+
+        .bad {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+        }
+
+        .status-icon.good {
+            background: #4CAF50;
+        }
+
+        .status-icon.improve {
+            background: #ff9800;
+        }
+
+        .status-icon.bad {
+            background: #f44336;
+        }
+
+        .tab-container {
+            margin-bottom: 20px;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .tab-button {
+            padding: 10px 20px;
+            background: #f1f1f1;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .tab-button.active {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+        .url-analysis-item {
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 4px;
+}
+
+#suggested-url {
+    background-color: #f5f5f5;
+}
+
+.url-tips {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+.url-analysis-item {
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 4px;
+}
+
+#url-analysis-results {
+    margin: 10px 0 20px 0;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    border-left: 4px solid #4CAF50;
+}
+
+#suggested-url {
+    background-color: #f5f5f5;
+    margin-bottom: 15px;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Công cụ SEO bài viết</h1>
+        
+        <div class="tab-container">
+            <div class="tab-buttons">
+                <button class="tab-button active" onclick="showTab('content')">Nội dung</button>
+                <button class="tab-button" onclick="showTab('keyword')">Từ khóa</button>
+                <button class="tab-button" onclick="showTab('readability')">Khả năng đọc</button>
+            </div>
+        </div>
+        <div id="content" class="tab-content active">
+            <div class="input-section">
+                <label for="focus-keyword">Từ khóa chính:</label>
+                <input type="text" id="focus-keyword" placeholder="Nhập từ khóa chính của bạn">
+                <label for="title">Tiêu đề SEO:</label>
+                <input type="text" id="title" placeholder="Nhập tiêu đề SEO">
+                <!--  -->
+                 <!-- Thêm phần URL vào đây -->
+                 <label for="focus-keyword">Từ khóa (chính, phụ):</label>
+                 <input type="text" id="focus-keyword" placeholder="Nhập từ khóa chính, từ khóa phụ (cách nhau bởi dấu phẩy)">
+                 <small style="color: #666; display: block; margin-top: 5px;">Ví dụ: máy ảnh sony, giá rẻ</small>
+                <label for="page-url">URL trang:</label>
+                <input type="text" id="page-url" placeholder="Nhập URL trang của bạn" title="URL sẽ tự động được chuyển đổi sang định dạng thân thiện với SEO">
+                <label for="suggested-url">URL được đề xuất:</label>
+                <input type="text" id="suggested-url" readonly>
+                
+                <div id="url-analysis-results"></div>
+
+                <!--  -->
+                <label for="meta-description">Meta Description:</label>
+                
+                <textarea id="meta-description" placeholder="Nhập meta description"></textarea>
+                <div id="editor-container" style="margin-top: 10px;">
+                    <textarea id="rich-text-editor"></textarea>
+                </div>
+
+                <button onclick="analyzeSEO()">Phân tích SEO</button>
+            </div>
+
+            <div class="results">
+                <div class="seo-score">
+                    <div class="score-circle" id="score-indicator"></div>
+                    <div>
+                        <h3>Điểm SEO</h3>
+                        <p id="score-text"></p>
+                    </div>
+                </div>
+
+                <div id="analysis-results"></div>
+            </div>
+        </div>
+
+        <div id="keyword" class="tab-content">
+            <div class="input-section">
+                <label for="keyword-density">Mật độ từ khóa mục tiêu:</label>
+                <p id="keyword-density-result">-</p>
+                
+                <label>Vị trí xuất hiện từ khóa:</label>
+                <ul id="keyword-positions"></ul>
+            </div>
+        </div>
+
+        <div id="readability" class="tab-content">
+            <div class="input-section">
+                <label>Độ dài câu trung bình:</label>
+                <p id="avg-sentence-length">-</p>
+
+                <label>Số từ trong bài:</label>
+                <p id="word-count">-</p>
+
+                <label>Đánh giá khả năng đọc:</label>
+                <p id="readability-score">-</p>
+            </div>
+        </div>
+    </div>
+    <!-- Thêm JavaScript cho phân tích URL -->
+<script>
+    // Hàm chuyển đổi Unicode sang ASCII
+function convertToAscii(str) {
+    return str
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // Bỏ dấu
+        .replace(/đ/g, 'd')
+        .replace(/Đ/g, 'D');
+}
+
+// Hàm chuyển chuỗi thành URL friendly
+function convertToUrlFriendly(str) {
+    return convertToAscii(str)
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '') // Chỉ giữ chữ cái, số và khoảng trắng
+        .trim()
+        .replace(/\s+/g, '-') // Thay khoảng trắng bằng dấu gạch ngang
+        .replace(/-+/g, '-'); // Loại bỏ nhiều dấu gạch ngang liên tiếp
+}
+
+// Thêm event listener khi document đã load
+document.addEventListener('DOMContentLoaded', function() {
+    const urlInput = document.getElementById('page-url');
+    if (urlInput) {
+        // Thêm event listener cho input URL
+        urlInput.addEventListener('input', function(e) {
+            const rawUrl = e.target.value;
+            const cleanUrl = convertToUrlFriendly(rawUrl);
+            e.target.value = cleanUrl;
+        });
+
+        // Thêm helper text
+        const helperText = document.createElement('small');
+        helperText.style.color = '#666';
+        helperText.style.display = 'block';
+        helperText.style.marginTop = '5px';
+        helperText.textContent = 'URL sẽ tự động được chuyển đổi: ví dụ "Từ Khóa SEO" → "tu-khoa-seo"';
+        urlInput.parentNode.insertBefore(helperText, urlInput.nextSibling);
+    }
+});
+function analyzeURL() {
+    const url = document.getElementById('page-url').value;
+    const keywords = document.getElementById('focus-keyword').value.split(',').map(k => k.trim()).filter(k => k);
+    const results = [];
+    let score = 100;
+
+    // Kiểm tra URL rỗng
+    if (!url) {
+        results.push({
+            status: 'bad',
+            message: 'URL không được để trống'
+        });
+        score -= 20;
+        displayURLResults(score, results);
+        return;
+    }
+
+    // Lấy từ khóa chính và phụ
+    const mainKeyword = keywords[0] || '';
+    const secondaryKeyword = keywords[1] || '';
+
+    // Chuyển đổi từ khóa sang dạng URL friendly để so sánh
+    const urlFriendlyMain = convertToUrlFriendly(mainKeyword);
+    const urlFriendlySecondary = convertToUrlFriendly(secondaryKeyword);
+    
+    // Loại bỏ dấu gạch ngang khi so sánh
+    const normalizedUrl = url.replace(/-/g, '');
+    const normalizedMain = urlFriendlyMain.replace(/-/g, '');
+    const normalizedSecondary = urlFriendlySecondary.replace(/-/g, '');
+
+    // Kiểm tra từ khóa chính trong URL
+    if (mainKeyword && !normalizedUrl.includes(normalizedMain)) {
+        results.push({
+            status: 'improve',
+            message: 'URL nên chứa từ khóa chính'
+        });
+        score -= 10;
+    } else if (mainKeyword) {
+        results.push({
+            status: 'good',
+            message: 'URL có chứa từ khóa chính'
+        });
+    }
+
+    // Kiểm tra từ khóa phụ trong URL nếu có
+    if (secondaryKeyword) {
+        if (!normalizedUrl.includes(normalizedSecondary)) {
+            results.push({
+                status: 'improve',
+                message: 'Có thể thêm từ khóa phụ vào URL để tối ưu hơn'
+            });
+        } else {
+            results.push({
+                status: 'good',
+                message: 'URL có chứa cả từ khóa phụ'
+            });
+            score = Math.min(100, score + 5);
+        }
+    }
+
+    // Tạo URL được đề xuất
+    if (mainKeyword) {
+        let suggestedUrl = urlFriendlyMain;
+        if (secondaryKeyword) {
+            suggestedUrl += '-' + urlFriendlySecondary;
+        }
+        document.getElementById('suggested-url').value = suggestedUrl;
+    } else {
+        document.getElementById('suggested-url').value = 'Vui lòng nhập từ khóa';
+    }
+
+    // Kiểm tra độ dài URL
+    if (url.length > 100) {
+        results.push({
+            status: 'bad',
+            message: 'URL quá dài. Nên giữ URL dưới 100 ký tự.'
+        });
+        score -= 15;
+    } else if (url.length > 70) {
+        results.push({
+            status: 'improve',
+            message: 'URL hơi dài. Nên giữ URL ngắn gọn để dễ nhớ và chia sẻ.'
+        });
+        score -= 5;
+    } else if (url.length < 10) {
+        results.push({
+            status: 'improve',
+            message: 'URL quá ngắn. Nên bao gồm các từ khóa mô tả.'
+        });
+        score -= 5;
+    } else {
+        results.push({
+            status: 'good',
+            message: 'Độ dài URL phù hợp.'
+        });
+    }
+
+    // Kiểm tra cấu trúc URL
+    const hasSpecialChars = /[^a-z0-9-]/i.test(url);
+    if (hasSpecialChars) {
+        results.push({
+            status: 'bad',
+            message: 'URL chứa ký tự đặc biệt. Chỉ nên sử dụng chữ cái, số và dấu gạch ngang.'
+        });
+        score -= 15;
+    } else {
+        results.push({
+            status: 'good',
+            message: 'URL có cấu trúc tốt, không chứa ký tự đặc biệt.'
+        });
+    }
+
+    displayURLResults(score, results);
+}  
+    
+    function createCleanUrl(keyword) {
+        return keyword
+            .toLowerCase()
+            .normalize('NFD') // Chuẩn hóa dấu
+            .replace(/[\u0300-\u036f]/g, '') // Loại bỏ dấu
+            .replace(/đ/g, 'd')
+            .replace(/[^a-z0-9\s-]/g, '') // Chỉ giữ lại chữ cái, số và khoảng trắng
+            .replace(/\s+/g, '-') // Thay khoảng trắng bằng dấu gạch ngang
+            .replace(/-+/g, '-') // Loại bỏ nhiều dấu gạch ngang liên tiếp
+            .replace(/^-|-$/g, ''); // Loại bỏ dấu gạch ngang ở đầu và cuối
+    }
+    
+    function displayURLResults(score, results) {
+        const container = document.getElementById('url-analysis-results');
+        container.innerHTML = `
+            <div class="seo-score">
+                <div class="score-circle" style="background-color: ${getScoreColor(score)}">${score}</div>
+                <div>
+                    <h3>Điểm tối ưu URL</h3>
+                    <p>${getScoreText(score)}</p>
+                </div>
+            </div>
+            ${results.map(result => `
+                <div class="analysis-item ${result.status}">
+                    <div class="status-icon ${result.status}"></div>
+                    <div>${result.message}</div>
+                </div>
+            `).join('')}
+            <div class="url-tips">
+                <h4>Mẹo tối ưu URL:</h4>
+                <ul>
+                    <li>Sử dụng chữ thường</li>
+                    <li>Tránh các ký tự đặc biệt</li>
+                    <li>Sử dụng dấu gạch ngang (-) thay vì gạch dưới (_)</li>
+                    <li>Giữ URL ngắn gọn và có ý nghĩa</li>
+                    <li>Bao gồm từ khóa chính khi có thể</li>
+                </ul>
+            </div>
+        `;
+    }
+    
+    function getScoreColor(score) {
+        if (score >= 80) return '#4CAF50';
+        if (score >= 50) return '#ff9800';
+        return '#f44336';
+    }
+    
+    function getScoreText(score) {
+        if (score >= 80) return 'URL tốt';
+        if (score >= 50) return 'URL cần cải thiện';
+        return 'URL cần tối ưu lại';
+    }
+    </script>
+    <script>
+        // Khởi tạo TinyMCE
+        tinymce.init({
+            selector: '#rich-text-editor',
+            height: 500,
+            menubar: true,
+            plugins: [
+                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                'insertdatetime', 'media', 'table', 'help', 'wordcount', 'image',
+                'paste', 'quickbars', 'emoticons', 'template'
+            ],
+            toolbar: 'undo redo | styles | bold italic forecolor backcolor | ' +
+                'alignleft aligncenter alignright alignjustify | ' +
+                'bullist numlist outdent indent | link image media table | ' +
+                'removeformat code fullscreen help',
+            toolbar_mode: 'sliding',
+            contextmenu: 'link image table',
+            content_style: 'body { font-family: Arial,sans-serif; font-size: 14px }',
+            language: 'vi',
+            branding: false,
+            promotion: false,
+            paste_data_images: true,
+            automatic_uploads: true,
+            image_title: true,
+            file_picker_types: 'image',
+            image_class_list: [
+                {title: 'Responsive', value: 'img-fluid'},
+                {title: 'Left', value: 'float-left me-3'},
+                {title: 'Right', value: 'float-right ms-3'},
+                {title: 'Center', value: 'mx-auto d-block'}
+            ],
+            table_class_list: [
+                {title: 'Bordered', value: 'table table-bordered'},
+                {title: 'Striped', value: 'table table-striped'},
+                {title: 'Hover', value: 'table table-hover'}
+            ],
+            table_default_styles: {
+                width: '100%'
+            },
+            table_responsive: true,
+            quickbars_selection_toolbar: 'bold italic | quicklink h2 h3',
+            quickbars_insert_toolbar: 'quickimage quicktable',
+            file_picker_callback: function(callback, value, meta) {
+                // Tạo input file ẩn
+                var input = document.createElement('input');
+                input.setAttribute('type', 'file');
+                input.setAttribute('accept', 'image/*');
+
+                input.onchange = function() {
+                    var file = this.files[0];
+                    var reader = new FileReader();
+                    
+                    reader.onload = function() {
+                        callback(reader.result, {
+                            title: file.name
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                };
+
+                input.click();
+            },
+            setup: function(editor) {
+                editor.on('init', function(e) {
+                    editor.setContent('');
+                });
+            },
+            init_instance_callback: function(editor) {
+                editor.on('Change', function(e) {
+                    // Lưu nội dung vào localStorage để không bị mất khi refresh
+                    localStorage.setItem('tinymce_content', editor.getContent());
+                });
+
+                // Khôi phục nội dung từ localStorage nếu có
+                var savedContent = localStorage.getItem('tinymce_content');
+                if (savedContent) {
+                    editor.setContent(savedContent);
+                }
+            },
+            templates: [
+                {
+                    title: 'Mẫu bài viết sản phẩm',
+                    description: 'Mẫu cho bài viết giới thiệu sản phẩm',
+                    content: `
+                        <h1>Tên sản phẩm</h1>
+                        <p class="introduction">Giới thiệu ngắn về sản phẩm</p>
+                        <img src="" alt="Hình ảnh sản phẩm" class="img-fluid">
+                        <h2>Đặc điểm nổi bật</h2>
+                        <ul>
+                            <li>Đặc điểm 1</li>
+                            <li>Đặc điểm 2</li>
+                            <li>Đặc điểm 3</li>
+                        </ul>
+                        <h2>Thông số kỹ thuật</h2>
+                        <table class="table table-bordered">
+                            <tr>
+                                <th>Thông số</th>
+                                <th>Chi tiết</th>
+                            </tr>
+                            <tr>
+                                <td>Thông số 1</td>
+                                <td>Chi tiết 1</td>
+                            </tr>
+                        </table>
+                    `
+                },
+                {
+                    title: 'Mẫu bài viết hướng dẫn',
+                    description: 'Mẫu cho bài viết hướng dẫn sử dụng',
+                    content: `
+                        <h1>Hướng dẫn sử dụng</h1>
+                        <h2>Bước 1:</h2>
+                        <p>Mô tả bước 1</p>
+                        <img src="" alt="Hình ảnh minh họa bước 1" class="img-fluid">
+                        <h2>Bước 2:</h2>
+                        <p>Mô tả bước 2</p>
+                        <img src="" alt="Hình ảnh minh họa bước 2" class="img-fluid">
+                    `
+                }
+            ]
+        });
+        function showTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabId).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        function analyzeSEO() {
+            // Phân tích URL trước
+            analyzeURL();
+
+            const focusKeyword = document.getElementById('focus-keyword').value;
+            const title = document.getElementById('title').value;
+            const metaDescription = document.getElementById('meta-description').value;
+            const content = tinymce.get('rich-text-editor').getContent();
+            const plainContent = tinymce.get('rich-text-editor').getContent({format: 'text'});
+
+            let score = 100;
+            let results = [];
+            
+            // Phân tích HTML content
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(content, 'text/html');
+            
+            // 1. Kiểm tra cấu trúc heading
+            const h1Tags = doc.getElementsByTagName('h1');
+            const h2Tags = doc.getElementsByTagName('h2');
+            const h3Tags = doc.getElementsByTagName('h3');
+            
+            if (h1Tags.length === 0) {
+                results.push({status: 'bad', message: 'Bài viết cần có thẻ H1'});
+                score -= 10;
+            } else if (h1Tags.length > 1) {
+                results.push({status: 'bad', message: 'Chỉ nên có một thẻ H1 trong bài viết'});
+                score -= 5;
+            } else {
+                results.push({status: 'good', message: 'Cấu trúc H1 tốt'});
+            }
+            
+            if (h2Tags.length === 0) {
+                results.push({status: 'improve', message: 'Nên sử dụng các thẻ H2 để phân chia nội dung'});
+                score -= 5;
+            }
+
+            // 2. Kiểm tra từ khóa trong heading
+            let keywordInHeading = false;
+            Array.from(h1Tags).concat(Array.from(h2Tags)).forEach(heading => {
+                if (heading.textContent.toLowerCase().includes(focusKeyword.toLowerCase())) {
+                    keywordInHeading = true;
+                }
+            });
+            
+            if (!keywordInHeading) {
+                results.push({status: 'improve', message: 'Nên đặt từ khóa trong các thẻ heading'});
+                score -= 5;
+            } else {
+                results.push({status: 'good', message: 'Từ khóa xuất hiện trong heading'});
+            }
+
+            // 3. Kiểm tra hình ảnh
+            const images = doc.getElementsByTagName('img');
+            let hasAltText = true;
+            
+            if (images.length === 0) {
+                results.push({status: 'improve', message: 'Nên thêm hình ảnh vào bài viết'});
+                score -= 5;
+            } else {
+                Array.from(images).forEach(img => {
+                    if (!img.alt) {
+                        hasAltText = false;
+                    }
+                });
+                
+                if (!hasAltText) {
+                    results.push({status: 'bad', message: 'Tất cả hình ảnh cần có alt text'});
+                    score -= 5;
+                } else {
+                    results.push({status: 'good', message: 'Hình ảnh có alt text đầy đủ'});
+                }
+            }
+
+            // 4. Kiểm tra internal links
+            const links = doc.getElementsByTagName('a');
+            let internalLinks = 0;
+            let externalLinks = 0;
+            
+            Array.from(links).forEach(link => {
+                if (link.href.includes(window.location.hostname)) {
+                    internalLinks++;
+                } else {
+                    externalLinks++;
+                }
+            });
+            
+            if (internalLinks === 0) {
+                results.push({status: 'improve', message: 'Nên thêm internal links'});
+                score -= 5;
+            } else {
+                results.push({status: 'good', message: `Có ${internalLinks} internal links`});
+            }
+
+            // 5. Kiểm tra độ dài đoạn văn
+            const paragraphs = doc.getElementsByTagName('p');
+            let longParagraphs = 0;
+            
+            Array.from(paragraphs).forEach(p => {
+                if (p.textContent.split(' ').length > 150) {
+                    longParagraphs++;
+                }
+            });
+            
+            if (longParagraphs > 0) {
+                results.push({status: 'improve', message: `Có ${longParagraphs} đoạn văn quá dài (>150 từ)`});
+                score -= 5;
+            }
+
+            // 6. Kiểm tra transition words
+            const transitionWords = ['tuy nhiên', 'vì vậy', 'do đó', 'bởi vì', 'ngoài ra', 'thêm vào đó'];
+            let transitionCount = 0;
+            
+            transitionWords.forEach(word => {
+                const regex = new RegExp(word, 'gi');
+                const matches = plainContent.match(regex);
+                if (matches) {
+                    transitionCount += matches.length;
+                }
+            });
+            
+            if (transitionCount < 3) {
+                results.push({status: 'improve', message: 'Nên sử dụng nhiều transition words hơn'});
+                score -= 5;
+            } else {
+                results.push({status: 'good', message: 'Sử dụng transition words tốt'});
+            }
+
+            // 7. Kiểm tra từ khóa trong đoạn đầu
+            const firstParagraph = paragraphs[0]?.textContent || '';
+            if (!firstParagraph.toLowerCase().includes(focusKeyword.toLowerCase())) {
+                results.push({status: 'improve', message: 'Nên đặt từ khóa trong đoạn đầu tiên'});
+                score -= 5;
+            } else {
+                results.push({status: 'good', message: 'Từ khóa xuất hiện trong đoạn đầu'});
+            }
+
+            // 8. Kiểm tra LSI keywords và từ khóa liên quan
+            const lsiKeywords = generateLSIKeywords(focusKeyword);
+            let lsiCount = 0;
+            
+            lsiKeywords.forEach(keyword => {
+                if (plainContent.toLowerCase().includes(keyword.toLowerCase())) {
+                    lsiCount++;
+                }
+            });
+            
+            if (lsiCount < 3) {
+                results.push({status: 'improve', message: 'Nên sử dụng thêm từ khóa LSI liên quan'});
+                score -= 5;
+            } else {
+                results.push({status: 'good', message: 'Sử dụng từ khóa LSI tốt'});
+            }
+
+            // Kiểm tra độ dài tiêu đề
+            if (title.length === 0) {
+                results.push({status: 'bad', message: 'Tiêu đề không được để trống'});
+                score -= 20;
+            } else if (title.length < 40 || title.length > 60) {
+                results.push({status: 'improve', message: 'Độ dài tiêu đề nên từ 40-60 ký tự'});
+                score -= 10;
+            } else {
+                results.push({status: 'good', message: 'Độ dài tiêu đề tốt'});
+            }
+
+            // Kiểm tra từ khóa trong tiêu đề
+            if (!title.toLowerCase().includes(focusKeyword.toLowerCase())) {
+                results.push({status: 'bad', message: 'Tiêu đề nên chứa từ khóa chính'});
+                score -= 15;
+            } else {
+                results.push({status: 'good', message: 'Tiêu đề có chứa từ khóa chính'});
+            }
+
+            // Kiểm tra meta description
+            if (metaDescription.length === 0) {
+                results.push({status: 'bad', message: 'Meta description không được để trống'});
+                score -= 20;
+            } else if (metaDescription.length < 120 || metaDescription.length > 156) {
+                results.push({status: 'improve', message: 'Meta description nên có độ dài 120-156 ký tự'});
+                score -= 10;
+            } else {
+                results.push({status: 'good', message: 'Độ dài meta description tốt'});
+            }
+
+            // Kiểm tra từ khóa trong meta description
+            if (!metaDescription.toLowerCase().includes(focusKeyword.toLowerCase())) {
+                results.push({status: 'improve', message: 'Meta description nên chứa từ khóa chính'});
+                score -= 10;
+            } else {
+                results.push({status: 'good', message: 'Meta description có chứa từ khóa chính'});
+            }
+
+            // Kiểm tra độ dài nội dung
+            const wordCount = content.split(/\s+/).length;
+            if (wordCount < 300) {
+                results.push({status: 'bad', message: 'Nội dung quá ngắn, nên có ít nhất 300 từ'});
+                score -= 20;
+            } else {
+                results.push({status: 'good', message: 'Độ dài nội dung tốt'});
+            }
+
+            // Kiểm tra mật độ từ khóa
+            const keywordCount = (content.toLowerCase().match(new RegExp(focusKeyword.toLowerCase(), 'g')) || []).length;
+            const keywordDensity = (keywordCount / wordCount) * 100;
+            
+            document.getElementById('keyword-density-result').textContent = `${keywordDensity.toFixed(2)}%`;
+            
+            if (keywordDensity < 0.5) {
+                results.push({status: 'improve', message: 'Mật độ từ khóa thấp (dưới 0.5%)'});
+                score -= 10;
+            } else if (keywordDensity > 2.5) {
+                results.push({status: 'bad', message: 'Mật độ từ khóa quá cao (trên 2.5%)'});
+                score -= 15;
+            } else {
+                results.push({status: 'good', message: 'Mật độ từ khóa tốt'});
+            }
+
+            displayResults(score, results);
+            analyzeReadability(content);
+            findKeywordPositions(content, focusKeyword);
+        }
+
+        // Hàm tạo từ khóa LSI
+function generateLSIKeywords(keyword) {
+    // Đây chỉ là ví dụ, trong thực tế bạn có thể sử dụng API hoặc database để lấy từ khóa LSI
+    const lsiMap = {
+        'seo': ['tối ưu hóa tìm kiếm', 'công cụ tìm kiếm', 'google search', 'thứ hạng từ khóa'],
+        'marketing': ['digital marketing', 'tiếp thị trực tuyến', 'quảng cáo online', 'chiến lược marketing'],
+        'website': ['trang web', 'landing page', 'thiết kế web', 'web development'],
+        // Thêm các từ khóa khác tùy theo nhu cầu
+    };
+    
+    // Tìm từ khóa chính trong map
+    for (let key in lsiMap) {
+        if (keyword.toLowerCase().includes(key)) {
+            return lsiMap[key];
+        }
+    }
+    
+    return []; // Trả về mảng rỗng nếu không tìm thấy
+}
+
+function displayResults(score, results) {
+            const scoreIndicator = document.getElementById('score-indicator');
+            const scoreText = document.getElementById('score-text');
+            const analysisResults = document.getElementById('analysis-results');
+
+            // Set score color
+            if (score >= 80) {
+                scoreIndicator.style.backgroundColor = '#4CAF50';
+                scoreText.textContent = 'Tốt';
+            } else if (score >= 50) {
+                scoreIndicator.style.backgroundColor = '#ff9800';
+                scoreText.textContent = 'Cần cải thiện';
+            } else {
+                scoreIndicator.style.backgroundColor = '#f44336';
+                scoreText.textContent = 'Không tốt';
+            }
+
+            scoreIndicator.textContent = score;
+
+            // Display analysis results
+            analysisResults.innerHTML = results.map(result => `
+                <div class="analysis-item ${result.status}">
+                    <div class="status-icon ${result.status}"></div>
+                    <div>${result.message}</div>
+                </div>
+            `).join('');
+        }
+
+        function analyzeReadability(content) {
+            // Tính độ dài câu trung bình
+            const sentences = content.split(/[.!?]+/).filter(Boolean);
+            const avgWordsPerSentence = sentences.reduce((acc, sentence) => {
+                return acc + sentence.split(/\s+/).length;
+            }, 0) / sentences.length;
+
+            document.getElementById('avg-sentence-length').textContent = 
+                `${avgWordsPerSentence.toFixed(1)} từ/câu`;
+
+            // Đếm số từ
+            const wordCount = content.split(/\s+/).length;
+            document.getElementById('word-count').textContent = `${wordCount} từ`;
+
+            // Đánh giá khả năng đọc
+            let readabilityScore = 'Dễ đọc';
+            if (avgWordsPerSentence > 20) {
+                readabilityScore = 'Khó đọc - Câu quá dài';
+            } else if (avgWordsPerSentence < 10) {
+                readabilityScore = 'Dễ đọc - Câu ngắn gọn';
+            }
+
+            document.getElementById('readability-score').textContent = readabilityScore;
+        }
+
+        function findKeywordPositions(content, keyword) {
+            const positions = [];
+            const paragraphs = content.split('\n').filter(Boolean);
+            
+            paragraphs.forEach((paragraph, index) => {
+                if (paragraph.toLowerCase().includes(keyword.toLowerCase())) {
+                    positions.push(`Đoạn ${index + 1}`);
+                }
+            });
+
+            document.getElementById('keyword-positions').innerHTML = 
+                positions.map(pos => `<li>${pos}</li>`).join('') || 'Không tìm thấy từ khóa';
+        }
+    </script>
+</body>
+</html>
